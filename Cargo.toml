@@ -6,3 +6,24 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+dotenv = "0.15.0"
+clap = { version = "4.1.4", features = ["derive", "env"] }
+tracing-subscriber = { version = "0.3.16", features = ["env-filter"] }
+tracing = "0.1.37"
+async-trait = "0.1.63"
+common = { path = "../common" }
+prost = "0.11.6"
+tonic = "0.8.3"
+tokio = { version = "1.24.2", features = ["macros", "rt-multi-thread"] }
+mockall = "0.11.3"
+sqlx = { version = "0.6.2", features = [
+  "runtime-tokio-rustls",
+  "postgres",
+  "time",
+  "offline",
+] }
+anyhow = "1.0.68"
+handlebars = "4.3.6"
+
+[build-dependencies]
+tonic-build = "0.8.4"
