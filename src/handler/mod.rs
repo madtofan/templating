@@ -59,7 +59,7 @@ pub mod test {
         let request = Request::new(AddTemplateRequest {
             name: template_name.to_string(),
             description: template_description.to_string(),
-            body: "<p>{input}</p>".to_string(),
+            body: "<p>{{input}}</p>".to_string(),
             template_inputs: vec![input],
         });
 

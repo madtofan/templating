@@ -24,7 +24,6 @@ sqlx = { version = "0.6.2", features = [
 ] }
 anyhow = "1.0.68"
 handlebars = "4.3.6"
-serde = { version = "1.0.152", features = ["derive"] }
 
 [build-dependencies]
 tonic-build = "0.8.4"
