@@ -3,9 +3,8 @@ use tonic::{Request, Response, Status};
 use crate::{
     service::templating::DynTemplatingServiceTrait,
     templating::{
-        list_template_response::Templates, templating_server::Templating, AddTemplateRequest,
-        ComposeRequest, ComposeResponse, ListTemplateRequest, ListTemplateResponse,
-        RemoveTemplateRequest, TemplatingResponse,
+        templating_server::Templating, AddTemplateRequest, ComposeRequest, ComposeResponse,
+        ListTemplateRequest, ListTemplateResponse, RemoveTemplateRequest, TemplateResponse,
     },
 };
 
@@ -24,29 +23,26 @@ impl Templating for RequestHandler {
     async fn add_template(
         &self,
         request: Request<AddTemplateRequest>,
-    ) -> Result<Response<TemplatingResponse>, Status> {
+    ) -> Result<Response<TemplateResponse>, Status> {
         let req = request.into_inner();
 
-        self.templating_service
+        let added_template = self
+            .templating_service
             .add_template(req.name, req.description, req.body, req.template_inputs)
             .await?;
 
-        Ok(Response::new(TemplatingResponse {
-            message: String::from("Success add template!"),
-        }))
+        Ok(Response::new(added_template))
     }
 
     async fn remove_template(
         &self,
         request: Request<RemoveTemplateRequest>,
-    ) -> Result<Response<TemplatingResponse>, Status> {
+    ) -> Result<Response<TemplateResponse>, Status> {
         let req = request.into_inner();
 
-        self.templating_service.remove_template(req.name).await?;
+        let removed_template = self.templating_service.remove_template(req.name).await?;
 
-        Ok(Response::new(TemplatingResponse {
-            message: String::from("Success removing template!"),
-        }))
+        Ok(Response::new(removed_template))
     }
 
     async fn list_templates(
@@ -59,7 +55,7 @@ impl Templating for RequestHandler {
             .await?
             .into_iter()
             .map(|template| template.into())
-            .collect::<Vec<Templates>>();
+            .collect::<Vec<TemplateResponse>>();
 
         Ok(Response::new(ListTemplateResponse { templates }))
     }

@@ -5,7 +5,7 @@ use async_trait::async_trait;
 use common::repository::connection_pool::ServiceConnectionPool;
 use sqlx::{query_as, types::time::OffsetDateTime, FromRow};
 
-use crate::templating::{list_template_response::Templates, TemplateInput};
+use crate::templating::{TemplateInput, TemplateResponse};
 
 use super::input::{DynInputRepositoryTrait, InputEntity};
 
@@ -30,7 +30,21 @@ pub struct TemplateInputsEntity {
     pub inputs: Vec<InputEntity>,
 }
 
-impl From<TemplateInputsEntity> for Templates {
+impl TemplateInputsEntity {
+    pub fn into_template_response(self) -> TemplateResponse {
+        TemplateResponse {
+            name: self.name,
+            description: self.description,
+            template_inputs: self
+                .inputs
+                .into_iter()
+                .map(|input| input.into())
+                .collect::<Vec<TemplateInput>>(),
+        }
+    }
+}
+
+impl From<TemplateInputsEntity> for TemplateResponse {
     fn from(template_entity: TemplateInputsEntity) -> Self {
         Self {
             name: template_entity.name,

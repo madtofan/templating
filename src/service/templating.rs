@@ -6,11 +6,8 @@ use handlebars::Handlebars;
 use tracing::{error, info};
 
 use crate::{
-    repository::{
-        input::DynInputRepositoryTrait,
-        template::{DynTemplateRepositoryTrait, TemplateInputsEntity},
-    },
-    templating::{compose_request::InputValue, TemplateInput},
+    repository::{input::DynInputRepositoryTrait, template::DynTemplateRepositoryTrait},
+    templating::{compose_request::InputValue, TemplateInput, TemplateResponse},
 };
 
 #[async_trait]
@@ -21,9 +18,9 @@ pub trait TemplatingServiceTrait {
         description: String,
         body: String,
         inputs: Vec<TemplateInput>,
-    ) -> ServiceResult<TemplateInputsEntity>;
-    async fn remove_template(&self, name: String) -> ServiceResult<Option<TemplateInputsEntity>>;
-    async fn list_templates(&self) -> ServiceResult<Vec<TemplateInputsEntity>>;
+    ) -> ServiceResult<TemplateResponse>;
+    async fn remove_template(&self, name: String) -> ServiceResult<TemplateResponse>;
+    async fn list_templates(&self) -> ServiceResult<Vec<TemplateResponse>>;
     async fn compose(&self, name: String, inputs: Vec<InputValue>) -> ServiceResult<String>;
 }
 
@@ -54,7 +51,7 @@ impl TemplatingServiceTrait for TemplatingService {
         description: String,
         body: String,
         inputs: Vec<TemplateInput>,
-    ) -> ServiceResult<TemplateInputsEntity> {
+    ) -> ServiceResult<TemplateResponse> {
         let existing_template = self.template_repository.get_template(&name).await?;
 
         if inputs.len() == 0 {
@@ -79,19 +76,19 @@ impl TemplatingServiceTrait for TemplatingService {
 
         info!("group successfully created");
 
-        Ok(created_template)
+        Ok(created_template.into_template_response())
     }
 
-    async fn remove_template(&self, name: String) -> ServiceResult<Option<TemplateInputsEntity>> {
+    async fn remove_template(&self, name: String) -> ServiceResult<TemplateResponse> {
         let existing_template = self.template_repository.get_template(&name).await?;
 
         match existing_template {
-            Some(_) => {
+            Some(template) => {
                 info!("removed template {:?}", &name);
-                let removed_template = self.template_repository.remove_template(&name).await?;
+                self.template_repository.remove_template(&name).await?;
 
                 info!("successfully removed subscriber from group");
-                Ok(removed_template)
+                Ok(template.into_template_response())
             }
             None => {
                 error!("template {:?} does not exists", &name);
@@ -102,10 +99,13 @@ impl TemplatingServiceTrait for TemplatingService {
         }
     }
 
-    async fn list_templates(&self) -> ServiceResult<Vec<TemplateInputsEntity>> {
+    async fn list_templates(&self) -> ServiceResult<Vec<TemplateResponse>> {
         let templates = self.template_repository.list_templates().await?;
 
-        Ok(templates)
+        Ok(templates
+            .into_iter()
+            .map(|input| input.into_template_response())
+            .collect())
     }
 
     async fn compose(&self, name: String, inputs: Vec<InputValue>) -> ServiceResult<String> {
