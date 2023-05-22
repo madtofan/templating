@@ -54,7 +54,7 @@ impl TemplatingServiceTrait for TemplatingService {
     ) -> ServiceResult<TemplateResponse> {
         let existing_template = self.template_repository.get_template(&name).await?;
 
-        if inputs.len() == 0 {
+        if inputs.is_empty() {
             error!("Cannot create template with no inputs");
             return Err(ServiceError::BadRequest(
                 "Cannot create template with no inputs".to_string(),
