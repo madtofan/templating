@@ -49,13 +49,7 @@ impl Templating for RequestHandler {
         &self,
         _request: Request<ListTemplateRequest>,
     ) -> Result<Response<ListTemplateResponse>, Status> {
-        let templates = self
-            .templating_service
-            .list_templates()
-            .await?
-            .into_iter()
-            .map(|template| template.into())
-            .collect::<Vec<TemplateResponse>>();
+        let templates = self.templating_service.list_templates().await?;
 
         Ok(Response::new(ListTemplateResponse { templates }))
     }

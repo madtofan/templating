@@ -4,6 +4,7 @@ use crate::config::AppConfig;
 use crate::handler::templating::RequestHandler;
 use crate::repository::input::{DynInputRepositoryTrait, InputRepository};
 use crate::repository::template::{DynTemplateRepositoryTrait, TemplateRepository};
+use crate::seed::SeedService;
 use crate::service::templating::{DynTemplatingServiceTrait, TemplatingService};
 use crate::templating::templating_server::TemplatingServer;
 use clap::Parser;
@@ -17,6 +18,7 @@ use tracing_subscriber::util::SubscriberInitExt;
 mod config;
 mod handler;
 mod repository;
+mod seed;
 mod service;
 pub mod templating {
     tonic::include_proto!("templating");
@@ -38,15 +40,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await
         .expect("could not initialize the database connection pool");
 
-    if config.seed {
-        todo!("Migrations is not done yet")
-        // info!("migrations enabled, running...");
-        // sqlx::migrate!()
-        //     .run(&pool)
-        //     .await
-        //     .context("error while running database migrations")?;
-    }
-
     let app_host = &config.service_url;
     let app_port = &config.service_port;
     let app_url = format!("{}:{}", app_host, app_port).parse().unwrap();
@@ -55,10 +48,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let template_repository = Arc::new(TemplateRepository::new(pg_pool, inputs_repository.clone()))
         as DynTemplateRepositoryTrait;
     let templating_service = Arc::new(TemplatingService::new(
-        template_repository,
-        inputs_repository,
+        template_repository.clone(),
+        inputs_repository.clone(),
     )) as DynTemplatingServiceTrait;
-    let request_handler = RequestHandler::new(templating_service);
+    let request_handler = RequestHandler::new(templating_service.clone());
+
+    if config.seed {
+        info!("seeding enabled, creating test data...");
+        SeedService::new(templating_service, template_repository)
+            .seed()
+            .await
+            .expect("unexpected error occurred while seeding application data");
+    }
 
     info!("Service ready for request!");
     Server::builder()
