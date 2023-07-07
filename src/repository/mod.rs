@@ -5,9 +5,8 @@ pub mod template;
 pub mod test {
     use std::sync::Arc;
 
+    use madtofan_microservice_common::templating::TemplateInput;
     use sqlx::PgPool;
-
-    use crate::templating::TemplateInput;
 
     use super::{
         input::{DynInputRepositoryTrait, InputRepository},

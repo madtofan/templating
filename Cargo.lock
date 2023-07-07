@@ -226,21 +226,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "common"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum",
- "bytes",
- "serde",
- "serde_json",
- "sqlx",
- "thiserror",
- "tonic",
- "validator",
-]
-
-[[package]]
 name = "cpufeatures"
 version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -799,6 +784,23 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "abb12e687cfb44aa40f41fc3978ef76448f9b6038cad6aef4259d3c095a2382e"
 dependencies = [
  "cfg-if",
+]
+
+[[package]]
+name = "madtofan-microservice-common"
+version = "0.1.1"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bytes",
+ "prost",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "thiserror",
+ "tonic",
+ "tonic-build",
+ "validator",
 ]
 
 [[package]]
@@ -1668,15 +1670,14 @@ dependencies = [
  "anyhow",
  "async-trait",
  "clap",
- "common",
  "dotenv",
  "handlebars",
+ "madtofan-microservice-common",
  "mockall",
  "prost",
  "sqlx",
  "tokio",
  "tonic",
- "tonic-build",
  "tracing",
  "tracing-subscriber",
 ]

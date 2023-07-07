@@ -4,14 +4,12 @@ pub mod templating;
 pub mod test {
     use std::sync::Arc;
 
+    use madtofan_microservice_common::templating::{compose_request::InputValue, TemplateInput};
     use sqlx::PgPool;
 
-    use crate::{
-        repository::{
-            input::{DynInputRepositoryTrait, InputRepository},
-            template::{DynTemplateRepositoryTrait, TemplateRepository},
-        },
-        templating::{compose_request::InputValue, TemplateInput},
+    use crate::repository::{
+        input::{DynInputRepositoryTrait, InputRepository},
+        template::{DynTemplateRepositoryTrait, TemplateRepository},
     };
 
     use super::templating::{DynTemplatingServiceTrait, TemplatingService};

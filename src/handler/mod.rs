@@ -4,6 +4,10 @@ pub mod templating;
 pub mod test {
     use std::sync::Arc;
 
+    use madtofan_microservice_common::templating::{
+        compose_request::InputValue, templating_server::Templating, AddTemplateRequest,
+        ComposeRequest, ListTemplateRequest, RemoveTemplateRequest, TemplateInput,
+    };
     use sqlx::PgPool;
     use tonic::Request;
 
@@ -13,10 +17,6 @@ pub mod test {
             template::{DynTemplateRepositoryTrait, TemplateRepository},
         },
         service::templating::{DynTemplatingServiceTrait, TemplatingService},
-        templating::{
-            compose_request::InputValue, templating_server::Templating, AddTemplateRequest,
-            ComposeRequest, ListTemplateRequest, RemoveTemplateRequest, TemplateInput,
-        },
     };
 
     use super::templating::RequestHandler;
