@@ -2,11 +2,11 @@ use std::sync::Arc;
 
 use anyhow::Context;
 use async_trait::async_trait;
-use common::repository::connection_pool::ServiceConnectionPool;
+use madtofan_microservice_common::{
+    repository::connection_pool::ServiceConnectionPool, templating::TemplateInput,
+};
 use mockall::automock;
 use sqlx::{query_as, FromRow, Type};
-
-use crate::templating::TemplateInput;
 
 #[derive(FromRow, Type, Debug, Eq, PartialEq, Clone)]
 pub struct InputEntity {

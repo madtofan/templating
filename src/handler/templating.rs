@@ -1,12 +1,10 @@
+use madtofan_microservice_common::templating::{
+    templating_server::Templating, AddTemplateRequest, ComposeRequest, ComposeResponse,
+    ListTemplateRequest, ListTemplateResponse, RemoveTemplateRequest, TemplateResponse,
+};
 use tonic::{Request, Response, Status};
 
-use crate::{
-    service::templating::DynTemplatingServiceTrait,
-    templating::{
-        templating_server::Templating, AddTemplateRequest, ComposeRequest, ComposeResponse,
-        ListTemplateRequest, ListTemplateResponse, RemoveTemplateRequest, TemplateResponse,
-    },
-};
+use crate::service::templating::DynTemplatingServiceTrait;
 
 pub struct RequestHandler {
     templating_service: DynTemplatingServiceTrait,

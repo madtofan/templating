@@ -2,10 +2,11 @@ use std::sync::Arc;
 
 use anyhow::Context;
 use async_trait::async_trait;
-use common::repository::connection_pool::ServiceConnectionPool;
+use madtofan_microservice_common::{
+    repository::connection_pool::ServiceConnectionPool,
+    templating::{TemplateInput, TemplateResponse},
+};
 use sqlx::{query_as, types::time::OffsetDateTime, FromRow};
-
-use crate::templating::{TemplateInput, TemplateResponse};
 
 use super::input::{DynInputRepositoryTrait, InputEntity};
 

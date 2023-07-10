@@ -1,14 +1,14 @@
 use std::{collections::BTreeMap, sync::Arc};
 
 use async_trait::async_trait;
-use common::errors::{ServiceError, ServiceResult};
 use handlebars::Handlebars;
-use tracing::{error, info};
-
-use crate::{
-    repository::{input::DynInputRepositoryTrait, template::DynTemplateRepositoryTrait},
+use madtofan_microservice_common::{
+    errors::{ServiceError, ServiceResult},
     templating::{compose_request::InputValue, TemplateInput, TemplateResponse},
 };
+use tracing::{error, info};
+
+use crate::repository::{input::DynInputRepositoryTrait, template::DynTemplateRepositoryTrait};
 
 #[async_trait]
 pub trait TemplatingServiceTrait {

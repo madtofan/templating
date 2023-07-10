@@ -11,8 +11,7 @@ clap = { version = "4.1.4", features = ["derive", "env"] }
 tracing-subscriber = { version = "0.3.16", features = ["env-filter"] }
 tracing = "0.1.37"
 async-trait = "0.1.63"
-common = { path = "../common" }
-prost = "0.11.6"
+madtofan-microservice-common = { path="../common" }
 tonic = "0.8.3"
 tokio = { version = "1.24.2", features = ["macros", "rt-multi-thread"] }
 mockall = "0.11.3"
@@ -24,6 +23,3 @@ sqlx = { version = "0.6.2", features = [
 ] }
 anyhow = "1.0.68"
 handlebars = "4.3.6"
-
-[build-dependencies]
-tonic-build = "0.8.4"

@@ -1,11 +1,13 @@
-use common::errors::ServiceResult;
+use madtofan_microservice_common::{
+    errors::ServiceResult,
+    templating::{TemplateInput, TemplateResponse},
+};
 use mockall::lazy_static;
 use tracing::info;
 
 use crate::{
     repository::template::DynTemplateRepositoryTrait,
     service::templating::DynTemplatingServiceTrait,
-    templating::{TemplateInput, TemplateResponse},
 };
 
 lazy_static! {
