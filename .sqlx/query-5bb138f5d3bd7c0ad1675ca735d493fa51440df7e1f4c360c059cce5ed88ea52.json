@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                select\n                    t.id as id,\n                    t.name as name,\n                    t.description as description,\n                    t.body as body,\n                    t.created_at as created_at,\n                    t.updated_at as updated_at,\n                    array_agg((\n                        i.id,\n                        i.name,\n                        i.default_value,\n                        i.template_id\n                    )) as \"inputs!: Vec<InputEntity>\"\n                from templates as t\n                left join inputs as i\n                    on t.id = i.template_id\n                where t.name = $1::varchar\n                group by t.id\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "description",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "body",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "inputs!: Vec<InputEntity>",
+        "type_info": "RecordArray"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      null
+    ]
+  },
+  "hash": "5bb138f5d3bd7c0ad1675ca735d493fa51440df7e1f4c360c059cce5ed88ea52"
+}

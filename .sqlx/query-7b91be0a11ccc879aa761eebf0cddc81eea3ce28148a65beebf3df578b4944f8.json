@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                select\n                    i.id as id,\n                    i.name as name,\n                    i.default_value as default_value,\n                    i.template_id as template_id\n                from inputs as i\n                join templates as t\n                on i.template_id = t.id\n                where t.name = $1::varchar\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "default_value",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "template_id",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "7b91be0a11ccc879aa761eebf0cddc81eea3ce28148a65beebf3df578b4944f8"
+}
