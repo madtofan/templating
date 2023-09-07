@@ -18,8 +18,8 @@ RUN mkdir -p /usr/src/common
 COPY ./common ../common
 COPY ./templating .
 
-RUN cargo build --release --target=x86_64-unknown-linux-musl
-RUN cargo install --path .
+RUN RUSTFLAGS="-Ctarget-feature=-crt-static" cargo build --release --target=x86_64-unknown-linux-musl
+RUN RUSTFLAGS="-Ctarget-feature=-crt-static" cargo install --path .
 
 # ------------------------------------------------------------------------------
 # Final Stage
