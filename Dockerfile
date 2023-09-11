@@ -1,32 +1,34 @@
 # ------------------------------------------------------------------------------
 # Cargo Build Stage
 # ------------------------------------------------------------------------------
-FROM rust:alpine as cargo-build
+FROM rust:1.70.0-slim as builder
 
 WORKDIR /usr/src/templating
-RUN apk update && \
-    apk upgrade
-RUN apk add protoc protobuf-dev
-RUN apk add build-base
-RUN apk add clang llvm
-RUN apk add openssl openssl-dev 
-RUN apk add pkgconfig
-RUN apk add --no-cache musl-dev
+
+# Create blank project
+RUN USER=root cargo new templating
+RUN apt update && apt upgrade -y
+RUN apt install musl-tools protobuf-compiler -y
+
+## Install target platform (Cross-Compilation) --> Needed for Alpine
 RUN rustup target add x86_64-unknown-linux-musl
 
+# Now copy in the rest of the sources
 RUN mkdir -p /usr/src/common
 COPY ./common ../common
-COPY ./templating .
+COPY ./templating/ .
 
-RUN RUSTFLAGS="-Ctarget-feature=-crt-static" cargo build --release --target=x86_64-unknown-linux-musl
-RUN RUSTFLAGS="-Ctarget-feature=-crt-static" cargo install --path .
+
+# This is the actual application build.
+RUN cargo build --target x86_64-unknown-linux-musl --release
 
 # ------------------------------------------------------------------------------
 # Final Stage
 # ------------------------------------------------------------------------------
+FROM alpine:3.16.0 AS runtime 
 
-FROM alpine:latest
+# Copy application binary from builder image
+COPY --from=builder /usr/src/templating/target/x86_64-unknown-linux-musl/release/templating /usr/local/bin
 
-COPY --from=cargo-build /usr/local/cargo/bin/templating /usr/local/bin/templating
-
-CMD ["templating"]
+# Run the application
+CMD ["/usr/local/bin/templating"]
