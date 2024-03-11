@@ -1,23 +1,26 @@
 # ------------------------------------------------------------------------------
 # Cargo Build Stage
 # ------------------------------------------------------------------------------
-FROM rust:1.70.0-slim as builder
+ARG APP_NAME="templating"
+FROM --platform=linux/amd64 rust:1.74.0-alpine as builder
 
-WORKDIR /usr/src/templating
+ARG APP_NAME
+ARG TARGET="x86_64-unknown-linux-musl"
+WORKDIR /usr/src/$APP_NAME
 
 # Create blank project
-RUN USER=root cargo new templating
-RUN apt update && apt upgrade -y
-RUN apt install musl-tools protobuf-compiler -y
+RUN USER=root cargo new $APP_NAME
+RUN apk update && apk upgrade
+RUN apk add alpine-sdk
+RUN apk add --no-cache make protobuf-dev
 
 ## Install target platform (Cross-Compilation) --> Needed for Alpine
-RUN rustup target add x86_64-unknown-linux-musl
+RUN rustup target add $TARGET
 
 # Now copy in the rest of the sources
 RUN mkdir -p /usr/src/common
 COPY ./common ../common
-COPY ./templating/ .
-
+COPY ./$APP_NAME/ .
 
 # This is the actual application build.
 RUN cargo build --target x86_64-unknown-linux-musl --release
@@ -25,10 +28,11 @@ RUN cargo build --target x86_64-unknown-linux-musl --release
 # ------------------------------------------------------------------------------
 # Final Stage
 # ------------------------------------------------------------------------------
-FROM alpine:3.16.0 AS runtime 
+FROM alpine:3.18.0 AS runtime 
+ARG APP_NAME
 
 # Copy application binary from builder image
-COPY --from=builder /usr/src/templating/target/x86_64-unknown-linux-musl/release/templating /usr/local/bin
+COPY --from=builder /usr/src/$APP_NAME/target/x86_64-unknown-linux-musl/release/$APP_NAME /usr/local/bin
 
 # Run the application
 CMD ["/usr/local/bin/templating"]
