@@ -1,6 +1,6 @@
 use madtofan_microservice_common::{
     errors::ServiceResult,
-    templating::{TemplateInput, TemplateResponse},
+    templating::{ListTemplateRequest, TemplateInput, TemplateResponse},
 };
 use mockall::lazy_static;
 use tracing::info;
@@ -47,8 +47,12 @@ impl SeedService {
 
         let existing_templates = self
             .templating_service
-            .list_templates()
+            .list_templates(ListTemplateRequest {
+                offset: 0,
+                limit: 100,
+            })
             .await?
+            .templates
             .into_iter()
             .filter(|template| {
                 template.name == templating_registration_name

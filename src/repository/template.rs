@@ -6,7 +6,7 @@ use madtofan_microservice_common::{
     repository::connection_pool::ServiceConnectionPool,
     templating::{TemplateInput, TemplateResponse},
 };
-use sqlx::{query_as, types::time::OffsetDateTime, FromRow};
+use sqlx::{query, query_as, types::time::OffsetDateTime, FromRow};
 
 use super::input::{DynInputRepositoryTrait, InputEntity};
 
@@ -61,14 +61,19 @@ impl From<TemplateInputsEntity> for TemplateResponse {
 
 #[async_trait]
 pub trait TemplateRepositoryTrait {
-    async fn list_templates(&self) -> anyhow::Result<Vec<TemplateInputsEntity>>;
+    async fn list_templates(
+        &self,
+        offset: i64,
+        limit: i64,
+    ) -> anyhow::Result<Vec<TemplateInputsEntity>>;
+    async fn get_templates_count(&self) -> anyhow::Result<i64>;
     async fn get_template(&self, name: &str) -> anyhow::Result<Option<TemplateInputsEntity>>;
     async fn add_template(
         &self,
         name: &str,
         description: &str,
         body: &str,
-        template_inputs: &Vec<TemplateInput>,
+        template_inputs: &[TemplateInput],
     ) -> anyhow::Result<TemplateInputsEntity>;
     async fn remove_template(&self, name: &str) -> anyhow::Result<Option<TemplateInputsEntity>>;
 }
@@ -92,7 +97,11 @@ impl TemplateRepository {
 
 #[async_trait]
 impl TemplateRepositoryTrait for TemplateRepository {
-    async fn list_templates(&self) -> anyhow::Result<Vec<TemplateInputsEntity>> {
+    async fn list_templates(
+        &self,
+        offset: i64,
+        limit: i64,
+    ) -> anyhow::Result<Vec<TemplateInputsEntity>> {
         query_as!(
             TemplateInputsEntity,
             r#"
@@ -113,11 +122,29 @@ impl TemplateRepositoryTrait for TemplateRepository {
                 left join inputs as i
                     on t.id = i.template_id
                 group by t.id
+                limit $1::int
+                offset $2::int
             "#,
+            limit as i32,
+            offset as i32,
         )
         .fetch_all(&self.pool)
         .await
         .context("an unexpected error occured while obtaining template")
+    }
+
+    async fn get_templates_count(&self) -> anyhow::Result<i64> {
+        let count_result = query!(
+            r#"
+                select
+                    count(*)
+                from templates
+            "#,
+        )
+        .fetch_one(&self.pool)
+        .await?;
+
+        Ok(count_result.count.unwrap())
     }
 
     async fn get_template(&self, name: &str) -> anyhow::Result<Option<TemplateInputsEntity>> {
@@ -155,7 +182,7 @@ impl TemplateRepositoryTrait for TemplateRepository {
         name: &str,
         description: &str,
         body: &str,
-        template_inputs: &Vec<TemplateInput>,
+        template_inputs: &[TemplateInput],
     ) -> anyhow::Result<TemplateInputsEntity> {
         let add_template_response = query_as!(
             TemplateEntity,

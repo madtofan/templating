@@ -4,7 +4,9 @@ pub mod templating;
 pub mod test {
     use std::sync::Arc;
 
-    use madtofan_microservice_common::templating::{compose_request::InputValue, TemplateInput};
+    use madtofan_microservice_common::templating::{
+        compose_request::InputValue, ListTemplateRequest, TemplateInput,
+    };
     use sqlx::PgPool;
 
     use crate::repository::{
@@ -124,7 +126,14 @@ pub mod test {
             )
             .await?;
 
-        let templates_list = all_traits.templating_service.list_templates().await?;
+        let templates_list = all_traits
+            .templating_service
+            .list_templates(ListTemplateRequest {
+                offset: 0,
+                limit: 10,
+            })
+            .await?
+            .templates;
 
         assert_eq!(templates_list.len(), 1);
         assert_eq!(templates_list.first().unwrap().name, template_name);

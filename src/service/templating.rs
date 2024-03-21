@@ -4,7 +4,10 @@ use async_trait::async_trait;
 use handlebars::Handlebars;
 use madtofan_microservice_common::{
     errors::{ServiceError, ServiceResult},
-    templating::{compose_request::InputValue, TemplateInput, TemplateResponse},
+    templating::{
+        compose_request::InputValue, ListTemplateRequest, ListTemplateResponse, TemplateInput,
+        TemplateResponse,
+    },
 };
 use tracing::{error, info};
 
@@ -20,7 +23,10 @@ pub trait TemplatingServiceTrait {
         inputs: Vec<TemplateInput>,
     ) -> ServiceResult<TemplateResponse>;
     async fn remove_template(&self, name: String) -> ServiceResult<TemplateResponse>;
-    async fn list_templates(&self) -> ServiceResult<Vec<TemplateResponse>>;
+    async fn list_templates(
+        &self,
+        request: ListTemplateRequest,
+    ) -> ServiceResult<ListTemplateResponse>;
     async fn compose(&self, name: String, inputs: Vec<InputValue>) -> ServiceResult<String>;
 }
 
@@ -99,13 +105,23 @@ impl TemplatingServiceTrait for TemplatingService {
         }
     }
 
-    async fn list_templates(&self) -> ServiceResult<Vec<TemplateResponse>> {
-        let templates = self.template_repository.list_templates().await?;
+    async fn list_templates(
+        &self,
+        request: ListTemplateRequest,
+    ) -> ServiceResult<ListTemplateResponse> {
+        let templates = self
+            .template_repository
+            .list_templates(request.offset, request.limit)
+            .await?;
+        let count = self.template_repository.get_templates_count().await?;
 
-        Ok(templates
-            .into_iter()
-            .map(|input| input.into_template_response())
-            .collect())
+        Ok(ListTemplateResponse {
+            templates: templates
+                .into_iter()
+                .map(|input| input.into_template_response())
+                .collect(),
+            count,
+        })
     }
 
     async fn compose(&self, name: String, inputs: Vec<InputValue>) -> ServiceResult<String> {

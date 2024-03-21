@@ -45,11 +45,14 @@ impl Templating for RequestHandler {
 
     async fn list_templates(
         &self,
-        _request: Request<ListTemplateRequest>,
+        request: Request<ListTemplateRequest>,
     ) -> Result<Response<ListTemplateResponse>, Status> {
-        let templates = self.templating_service.list_templates().await?;
+        let list_templates_response = self
+            .templating_service
+            .list_templates(request.into_inner())
+            .await?;
 
-        Ok(Response::new(ListTemplateResponse { templates }))
+        Ok(Response::new(list_templates_response))
     }
 
     async fn compose(
