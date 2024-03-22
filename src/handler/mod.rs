@@ -132,7 +132,10 @@ pub mod test {
             )
             .await?;
 
-        let request = Request::new(ListTemplateRequest {});
+        let request = Request::new(ListTemplateRequest {
+            offset: 0,
+            limit: 10,
+        });
 
         let templates_list = all_traits
             .handler

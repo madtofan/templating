@@ -68,7 +68,7 @@ pub mod test {
             .remove_template(template_to_remove_name)
             .await?;
 
-        let templates_list = traits.templates_repository.list_templates().await?;
+        let templates_list = traits.templates_repository.list_templates(0, 10).await?;
 
         assert_eq!(templates_list.len(), 1);
         assert_eq!(removed_template.unwrap().body, template_to_remove_body);
